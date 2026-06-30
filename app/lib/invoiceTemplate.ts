@@ -128,24 +128,43 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
           page-break-inside: avoid;
         }
 
-        /* HEADER — logo + brand left-aligned together, phones pinned right */
+        /* HEADER — logo + brand centered together as a unit, phones pinned right */
         .header {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
           align-items: center;
-          justify-content: space-between;
           padding: 16px 20px 12px 20px;
           border-bottom: 2px solid #000;
         }
 
+        .header-spacer {
+          grid-column: 1;
+        }
+
         .logo-block {
+          grid-column: 2;
           display: flex;
           align-items: center;
           gap: 14px;
+          justify-self: center;
         }
-        .logo-block img { height: 64px; width: 64px; object-fit: contain; }
-        .brand-name { font-family: 'Times New Roman', serif; font-size: 34px; font-weight: 700; letter-spacing: 1px; }
+        .logo-block img {
+          height: 64px;
+          width: 64px;
+          object-fit: contain;
+          display: block;
+        }
+        .brand-name {
+          font-family: 'Times New Roman', serif;
+          font-size: 34px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          white-space: nowrap;
+        }
 
         .phones {
+          grid-column: 3;
+          justify-self: end;
           text-align: right;
           font-family: Arial, sans-serif;
           font-size: 13.5px;
@@ -213,7 +232,6 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
         .filler-row .desc-cell,
         .filler-row .un-cell { border-right: 2px solid #000; }
 
-        /* TOTAL ROW — 4 real cells so amount lines up exactly under Amount column */
         .total-row td { border-top: 2px solid #000; padding: 10px; font-family: Arial, sans-serif; }
         .total-label-cell {
           width: 56px;
@@ -258,6 +276,7 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
       <div class="box">
 
         <div class="header">
+          <div class="header-spacer"></div>
           <div class="logo-block">
             <img src="${logoUrl}" alt="HR SALES Logo" />
             <div class="brand-name">HR SALES</div>
