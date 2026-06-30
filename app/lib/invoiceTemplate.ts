@@ -14,20 +14,89 @@ export interface InvoiceData {
   products: Product[];
 }
 
+function numberToWords(num: number): string {
+  const a = [
+    "", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
+    "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN",
+    "SEVENTEEN", "EIGHTEEN", "NINETEEN",
+  ];
+  const b = [
+    "", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY",
+  ];
+
+  if (num === 0) return "ZERO";
+
+  function inWords(n: number): string {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
+    if (n < 1000)
+      return (
+        a[Math.floor(n / 100)] +
+        " HUNDRED" +
+        (n % 100 ? " " + inWords(n % 100) : "")
+      );
+    if (n < 100000)
+      return (
+        inWords(Math.floor(n / 1000)) +
+        " THOUSAND" +
+        (n % 1000 ? " " + inWords(n % 1000) : "")
+      );
+    if (n < 10000000)
+      return (
+        inWords(Math.floor(n / 100000)) +
+        " LAKH" +
+        (n % 100000 ? " " + inWords(n % 100000) : "")
+      );
+    return (
+      inWords(Math.floor(n / 10000000)) +
+      " CRORE" +
+      (n % 10000000 ? " " + inWords(n % 10000000) : "")
+    );
+  }
+
+  return inWords(Math.floor(num));
+}
+
 export default function invoiceTemplate(data: InvoiceData): string {
   const totalAmount = data.products.reduce((sum, p) => sum + p.amount, 0);
+  const totalQty = data.products.reduce((sum, p) => sum + p.qty, 0);
+  const amountInWords = `INR ${numberToWords(totalAmount)} ONLY`;
 
   const rows = data.products
     .map(
       (p, i) => `
         <tr>
-          <td style="padding: 8px 6px; border: 1px solid #ddd; text-align: center; vertical-align: top;">${i + 1}</td>
-          <td style="padding: 8px 6px; border: 1px solid #ddd; vertical-align: top;">
-            <div style="font-weight: 600;">${p.title}</div>
-            ${p.details ? `<div style="font-size: 12px; color: #444; margin-top: 3px; white-space: pre-line;">${p.details}</div>` : ""}
+          <td class="cell sl-cell">${i + 1}</td>
+          <td class="cell desc-cell">
+            <div class="desc-title">${p.title}</div>
+            ${
+              p.details
+                ? `<div class="desc-details">${p.details
+                    .split("\n")
+                    .map((line) => `<div>${line}</div>`)
+                    .join("")}</div>`
+                : ""
+            }
           </td>
-          <td style="padding: 8px 6px; border: 1px solid #ddd; text-align: center; vertical-align: top;">${p.qty}</td>
-          <td style="padding: 8px 6px; border: 1px solid #ddd; text-align: right; vertical-align: top;">৳ ${p.amount.toLocaleString()}</td>
+          <td class="cell un-cell">${p.qty}</td>
+          <td class="cell amt-cell">${p.amount.toLocaleString("en-IN")}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  // Pad rows so the table fills the page like the reference (fixed min height)
+  const minRows = 1;
+  const padRowsNeeded = Math.max(0, minRows - data.products.length);
+  const padRows = Array(padRowsNeeded)
+    .fill(0)
+    .map(
+      () => `
+        <tr>
+          <td class="cell sl-cell">&nbsp;</td>
+          <td class="cell desc-cell">&nbsp;</td>
+          <td class="cell un-cell">&nbsp;</td>
+          <td class="cell amt-cell">&nbsp;</td>
         </tr>
       `
     )
@@ -38,142 +107,366 @@ export default function invoiceTemplate(data: InvoiceData): string {
     <html lang="en">
     <head>
       <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Invoice #${data.billNo}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-          font-family: 'Segoe UI', Arial, sans-serif;
-          font-size: 14px;
+          font-family: 'Georgia', 'Times New Roman', serif;
           color: #111;
           background: #fff;
-          padding: 40px;
           width: 794px;
+          padding: 30px 36px;
         }
+
+        .invoice-heading {
+          text-align: center;
+          font-size: 30px;
+          letter-spacing: 6px;
+          font-weight: 400;
+          margin-bottom: 16px;
+        }
+
+        .box {
+          border: 2px solid #000;
+        }
+
+        /* HEADER */
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-bottom: 3px solid #1a1a2e;
-          padding-bottom: 20px;
-          margin-bottom: 24px;
+          padding: 18px 20px 14px 20px;
+          border-bottom: 2px solid #000;
         }
-        .logo-block { display: flex; align-items: center; gap: 14px; }
-        .logo-block img { height: 64px; width: 64px; object-fit: contain; }
-        .company-name { font-size: 28px; font-weight: 800; color: #1a1a2e; letter-spacing: 1px; }
-        .company-tagline { font-size: 11px; color: #666; margin-top: 2px; }
-        .contact-block { text-align: right; font-size: 12px; color: #333; line-height: 1.7; }
-        .invoice-title {
-          text-align: center;
-          font-size: 18px;
+
+        .logo-block {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .logo-block img {
+          height: 60px;
+          width: 60px;
+          object-fit: contain;
+        }
+
+        .brand-name {
+          font-family: 'Times New Roman', serif;
+          font-size: 36px;
           font-weight: 700;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: #1a1a2e;
-          margin-bottom: 20px;
-          border: 2px solid #1a1a2e;
-          padding: 6px 0;
         }
-        .bill-meta { display: flex; justify-content: space-between; margin-bottom: 24px; gap: 20px; }
-        .bill-to { flex: 1; }
-        .bill-to-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 6px; letter-spacing: 1px; }
-        .bill-to-name { font-size: 16px; font-weight: 700; color: #1a1a2e; }
-        .bill-to-detail { font-size: 13px; color: #444; margin-top: 3px; line-height: 1.6; }
-        .bill-info { text-align: right; min-width: 180px; }
-        .bill-info table { margin-left: auto; border-collapse: collapse; }
-        .bill-info td { padding: 2px 6px; font-size: 13px; }
-        .bill-info td:first-child { font-weight: 600; color: #555; text-align: left; }
-        .bill-info td:last-child { color: #111; text-align: right; }
-        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .products-table thead tr { background: #1a1a2e; color: #fff; }
-        .products-table thead th { padding: 10px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
-        .products-table thead th:nth-child(1) { width: 40px; text-align: center; }
-        .products-table thead th:nth-child(2) { text-align: left; }
-        .products-table thead th:nth-child(3) { width: 60px; text-align: center; }
-        .products-table thead th:nth-child(4) { width: 100px; text-align: right; }
-        .products-table tbody tr:nth-child(even) { background: #f7f7f7; }
-        .total-row { display: flex; justify-content: flex-end; margin-bottom: 40px; }
-        .total-box {
-          border: 2px solid #1a1a2e;
-          padding: 10px 20px;
-          min-width: 200px;
+
+        .phones {
+          text-align: right;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 1.6;
+        }
+
+        .phones div {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 6px;
+        }
+
+        /* ADDRESS ROW */
+        .address-row {
+          padding: 12px 20px;
+          border-bottom: 2px solid #000;
+          text-align: center;
+        }
+
+        .address-line {
+          font-size: 16px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        }
+
+        .email-line {
+          margin-top: 8px;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        /* BILL TO / INVOICE DETAILS */
+        .meta-row {
+          display: flex;
+          border-bottom: 2px solid #000;
+        }
+
+        .meta-col {
+          flex: 1;
+          padding: 0;
+        }
+
+        .meta-col + .meta-col {
+          border-left: 2px solid #000;
+        }
+
+        .meta-header {
+          text-align: center;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          padding: 8px 0;
+          border-bottom: 1.5px solid #000;
+        }
+
+        .meta-body {
+          padding: 14px 18px;
+          font-family: Arial, sans-serif;
+          font-size: 13px;
+        }
+
+        .meta-body .row {
+          display: flex;
+          margin-bottom: 10px;
+        }
+
+        .meta-body .row:last-child {
+          margin-bottom: 0;
+        }
+
+        .meta-label {
+          font-weight: 700;
+          text-transform: uppercase;
+          white-space: nowrap;
+          margin-right: 6px;
+        }
+
+        .meta-value {
+          font-weight: 600;
+        }
+
+        .meta-col.right .meta-body .row {
+          display: block;
+        }
+
+        .meta-col.right .meta-label {
+          margin-right: 6px;
+        }
+
+        /* PRODUCT TABLE */
+        table.items {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        table.items thead th {
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          padding: 10px 8px;
+          border-bottom: 2px solid #000;
+          border-top: 2px solid #000;
+        }
+
+        table.items thead th.sl-head { width: 60px; text-align: center; border-right: 2px solid #000; }
+        table.items thead th.desc-head { text-align: center; border-right: 2px solid #000; }
+        table.items thead th.un-head { width: 60px; text-align: center; border-right: 2px solid #000; }
+        table.items thead th.amt-head { width: 130px; text-align: center; }
+
+        .cell {
+          padding: 12px 10px;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          vertical-align: top;
+        }
+
+        .sl-cell {
+          width: 60px;
+          text-align: center;
+          font-weight: 700;
+          border-right: 2px solid #000;
+        }
+
+        .desc-cell {
+          border-right: 2px solid #000;
+        }
+
+        .desc-title {
+          font-size: 14.5px;
+          font-weight: 400;
+        }
+
+        .desc-details {
+          margin-top: 4px;
+          font-style: italic;
+          font-size: 12.5px;
+          color: #222;
+          line-height: 1.5;
+        }
+
+        .un-cell {
+          width: 60px;
+          text-align: center;
+          font-weight: 700;
+          border-right: 2px solid #000;
+        }
+
+        .amt-cell {
+          width: 130px;
+          text-align: left;
+          font-weight: 700;
+        }
+
+        /* TOTAL ROW */
+        .total-row td {
+          border-top: 2px solid #000;
+          padding: 10px;
+          font-family: Arial, sans-serif;
+        }
+
+        .total-label-cell {
+          font-family: 'Times New Roman', serif;
+          font-weight: 700;
+          font-size: 16px;
+          text-align: center;
+          border-right: 2px solid #000;
+          width: 60px;
+        }
+
+        .total-words-cell {
+          font-family: 'Times New Roman', serif;
+          font-weight: 700;
+          font-size: 13.5px;
+          border-right: 2px solid #000;
+        }
+
+        .total-amount-cell {
+          font-weight: 700;
+          font-size: 14px;
+        }
+
+        /* EMPTY SPACE ROWS (signature area) */
+        .empty-row td {
+          border-top: 2px solid #000;
+          height: 50px;
+        }
+
+        /* FOOTER */
+        .footer {
+          padding: 14px 20px;
+          border-top: 2px solid #000;
+          font-style: italic;
+          font-size: 13px;
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          gap: 20px;
+          align-items: flex-end;
         }
-        .total-label { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #1a1a2e; }
-        .total-amount { font-size: 18px; font-weight: 800; color: #1a1a2e; }
-        .footer { margin-top: 10px; border-top: 2px solid #1a1a2e; padding-top: 30px; }
-        .signatures { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .signature-block { text-align: center; min-width: 160px; }
-        .signature-line { border-top: 1px solid #333; margin-bottom: 6px; }
-        .signature-label { font-size: 12px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 0.5px; }
-        .footer-note { text-align: center; font-size: 13px; color: #555; margin-bottom: 4px; }
-        .footer-brand { text-align: center; font-size: 15px; font-weight: 800; color: #1a1a2e; letter-spacing: 2px; }
+
+        .footer-brand {
+          font-style: normal;
+          font-weight: 700;
+          font-family: 'Times New Roman', serif;
+          font-size: 13px;
+        }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="logo-block">
-          <img src="https://yourdomain.com/logo.png" alt="HR SALES Logo" />
-          <div>
-            <div class="company-name">HR SALES</div>
-            <div class="company-tagline">Quality Products & Trusted Service</div>
+
+      <div class="invoice-heading">INVOICE</div>
+
+      <div class="box">
+
+        <!-- HEADER -->
+        <div class="header">
+          <div class="logo-block">
+            <img src="https://yourdomain.com/logo.png" alt="HR SALES Logo" />
+            <div class="brand-name">HR SALES</div>
+          </div>
+          <div class="phones">
+            <div>+91 8917485620</div>
+            <div>+91 8280531114</div>
           </div>
         </div>
-        <div class="contact-block">
-          <div>123 Business Road, Dhaka, Bangladesh</div>
-          <div>+880 1XXX-XXXXXX &nbsp;|&nbsp; +880 1XXX-XXXXXX</div>
-          <div>hrsales@email.com</div>
+
+        <!-- ADDRESS -->
+        <div class="address-row">
+          <div class="address-line">GAFOOR COLONY, UDITNAGAR, ROURKELA, ODISHA, 769012</div>
+          <div class="email-line">hr.sales.rkl@gmail.com</div>
         </div>
-      </div>
 
-      <div class="invoice-title">Invoice</div>
-
-      <div class="bill-meta">
-        <div class="bill-to">
-          <div class="bill-to-label">Bill To</div>
-          <div class="bill-to-name">${data.customerName}</div>
-          <div class="bill-to-detail">${data.address}</div>
-          <div class="bill-to-detail">Phone: ${data.phone}</div>
-        </div>
-        <div class="bill-info">
-          <table>
-            <tr><td>Bill No:</td><td><strong>${data.billNo}</strong></td></tr>
-            <tr><td>Date:</td><td>${data.invoiceDate}</td></tr>
-          </table>
-        </div>
-      </div>
-
-      <table class="products-table">
-        <thead>
-          <tr><th>SL</th><th>Description</th><th>Qty</th><th>Amount</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-
-      <div class="total-row">
-        <div class="total-box">
-          <span class="total-label">Total</span>
-          <span class="total-amount">৳ ${totalAmount.toLocaleString()}</span>
-        </div>
-      </div>
-
-      <div class="footer">
-        <div class="signatures">
-          <div class="signature-block">
-            <div class="signature-line"></div>
-            <div class="signature-label">Customer Signature</div>
+        <!-- BILL TO / INVOICE DETAILS -->
+        <div class="meta-row">
+          <div class="meta-col left">
+            <div class="meta-header">BILL TO</div>
+            <div class="meta-body">
+              <div class="row">
+                <span class="meta-label">CUSTOMER NAME :</span>
+                <span class="meta-value">${data.customerName}</span>
+              </div>
+              <div class="row">
+                <span class="meta-label">ADDRESS :</span>
+                <span class="meta-value">${data.address}</span>
+              </div>
+              <div class="row">
+                <span class="meta-label">MOB NO :</span>
+                <span class="meta-value">${data.phone}</span>
+              </div>
+            </div>
           </div>
-          <div class="signature-block">
-            <div class="signature-line"></div>
-            <div class="signature-label">Authorized Signature</div>
+          <div class="meta-col right">
+            <div class="meta-header">INVOICE DETAILS</div>
+            <div class="meta-body">
+              <div class="row">
+                <span class="meta-label">BILL NO :</span>
+                <span class="meta-value">${data.billNo}</span>
+              </div>
+              <div class="row">
+                <span class="meta-label">INVOICE DATE :</span>
+                <span class="meta-value">${data.invoiceDate}</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="footer-note">Thanks for doing business with us.</div>
-        <div class="footer-brand">HR SALES</div>
+
+        <!-- PRODUCTS TABLE -->
+        <table class="items">
+          <thead>
+            <tr>
+              <th class="sl-head">SL</th>
+              <th class="desc-head">Description</th>
+              <th class="un-head">UN</th>
+              <th class="amt-head">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            ${padRows}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td class="total-label-cell">Total</td>
+              <td class="total-words-cell">${amountInWords}</td>
+              <td colspan="2" class="total-amount-cell">${totalAmount.toLocaleString("en-IN")}</td>
+            </tr>
+            <tr class="empty-row">
+              <td colspan="4"></td>
+            </tr>
+            <tr class="empty-row">
+              <td colspan="4"></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- FOOTER -->
+        <div class="footer">
+          <span>thanks for doing business with us</span>
+          <span class="footer-brand">HR SALES</span>
+        </div>
+
       </div>
+
     </body>
     </html>
   `;

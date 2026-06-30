@@ -105,172 +105,209 @@ export default function BillForm() {
     }
   };
 
-  return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
-      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
-          Customer Details
-        </h2>
+  const labelClass =
+    "block text-[11px] sm:text-xs font-bold uppercase tracking-widest text-gray-400 mb-2";
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  const inputClass =
+    "w-full bg-[#1a0505] border border-[#3a1010] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/40 transition-colors";
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#1a0303] via-[#120202] to-black">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-10">
+
+        {/* Page Header */}
+        <div>
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-red-500 mb-2">
+            HR Sales
+          </p>
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-red-600 leading-none">
+            Generate Invoice
+          </h1>
+          <p className="text-sm text-gray-400 mt-3">
+            Fill in the details below to generate and download a PDF invoice.
+          </p>
+          <div className="w-16 h-[3px] bg-red-600 rounded-full mt-5" />
+        </div>
+
+        {/* Customer Details */}
+        <div className="space-y-5 sm:space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={labelClass}>
               Customer Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={form.customerName}
               onChange={(e) => updateField("customerName", e.target.value)}
-              placeholder="John Doe"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g. Pinky Lenka"
+              className={inputClass}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input
-              type="text"
-              value={form.phone}
-              onChange={(e) => updateField("phone", e.target.value)}
-              placeholder="+880 1XXX-XXXXXX"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-          <textarea
-            value={form.address}
-            onChange={(e) => updateField("address", e.target.value)}
-            placeholder="123 Street, City, Country"
-            rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bill No <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={form.billNo}
-              onChange={(e) => updateField("billNo", e.target.value)}
-              placeholder="INV-001"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Invoice Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={form.invoiceDate}
-              onChange={(e) => updateField("invoiceDate", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">Products</h2>
-
-        {form.products.map((product, index) => (
-          <div key={index} className="border border-gray-100 rounded-lg p-4 space-y-3 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-600">Item #{index + 1}</span>
-              {form.products.length > 1 && (
-                <button
-                  onClick={() => removeProduct(index)}
-                  className="text-red-500 text-xs hover:underline"
-                >
-                  Remove
-                </button>
-              )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+            <div>
+              <label className={labelClass}>Phone</label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={(e) => updateField("phone", e.target.value)}
+                placeholder="+91 9XXXXXXXXX"
+                className={inputClass}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Title <span className="text-red-500">*</span>
+              <label className={labelClass}>
+                Bill No <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                value={product.title}
-                onChange={(e) => updateProduct(index, "title", e.target.value)}
-                placeholder="Product name"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={form.billNo}
+                onChange={(e) => updateField("billNo", e.target.value)}
+                placeholder="e.g. HRS-150"
+                className={inputClass}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Details</label>
-              <textarea
-                value={product.details}
-                onChange={(e) => updateProduct(index, "details", e.target.value)}
-                placeholder="Additional description (optional)"
-                rows={2}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Qty</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={product.qty}
-                  onChange={(e) => updateProduct(index, "qty", Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount (৳)</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={product.amount}
-                  onChange={(e) => updateProduct(index, "amount", Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-              </div>
             </div>
           </div>
-        ))}
 
+          <div>
+            <label className={labelClass}>Address</label>
+            <textarea
+              value={form.address}
+              onChange={(e) => updateField("address", e.target.value)}
+              placeholder="e.g. Koida, Odisha"
+              rows={2}
+              className={`${inputClass} resize-none`}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+            <div>
+              <label className={labelClass}>
+                Invoice Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={form.invoiceDate}
+                onChange={(e) => updateField("invoiceDate", e.target.value)}
+                className={`${inputClass} [color-scheme:dark]`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Products */}
+        <div className="space-y-5 sm:space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-gray-400">
+              Products
+            </h2>
+          </div>
+
+          {form.products.map((product, index) => (
+            <div
+              key={index}
+              className="border border-[#3a1010] rounded-xl p-4 sm:p-5 space-y-4 bg-[#150404]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-red-500">
+                  Item #{index + 1}
+                </span>
+                {form.products.length > 1 && (
+                  <button
+                    onClick={() => removeProduct(index)}
+                    className="text-gray-500 text-xs hover:text-red-500 transition-colors"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={product.title}
+                  onChange={(e) => updateProduct(index, "title", e.target.value)}
+                  placeholder="e.g. Electric Scooty Ola (Black)"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Details</label>
+                <textarea
+                  value={product.details}
+                  onChange={(e) => updateProduct(index, "details", e.target.value)}
+                  placeholder="Battery capacity, charger spec, serial no..."
+                  rows={3}
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label className={labelClass}>Qty</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={product.qty}
+                    onChange={(e) => updateProduct(index, "qty", Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Amount (₹)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={product.amount}
+                    onChange={(e) => updateProduct(index, "amount", Number(e.target.value))}
+                    placeholder="e.g. 75000"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={addProduct}
+            className="w-full border-2 border-dashed border-[#3a1010] rounded-xl py-3 text-sm font-semibold text-gray-500 hover:border-red-600 hover:text-red-500 transition-colors"
+          >
+            + Add Product
+          </button>
+
+          <div className="flex justify-end pt-1">
+            <div className="text-sm font-semibold text-gray-400">
+              Total:{" "}
+              <span className="text-xl font-black text-red-500">
+                ₹ {total.toLocaleString("en-IN")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="bg-red-950/60 border border-red-800 text-red-300 text-sm rounded-lg px-4 py-3">
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
         <button
-          onClick={addProduct}
-          className="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-500 transition-colors"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-red-700 text-white font-bold uppercase tracking-wide py-4 rounded-xl hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm shadow-lg shadow-red-900/40"
         >
-          + Add Product
+          {loading ? "Generating PDF..." : "Generate PDF"}
         </button>
 
-        <div className="flex justify-end pt-2">
-          <div className="text-sm font-semibold text-gray-700">
-            Total: <span className="text-lg font-bold text-gray-900">৳ {total.toLocaleString()}</span>
-          </div>
-        </div>
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="w-full bg-gray-900 text-white font-semibold py-3 rounded-xl hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm tracking-wide"
-      >
-        {loading ? "Generating PDF..." : "Generate PDF"}
-      </button>
     </div>
   );
 }
