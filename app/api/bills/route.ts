@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const logoUrl = new URL("/logo.png", req.url).toString();
+const origin = new URL(req.url).origin;
+const logoUrl = `${origin}/logo.png`;
     const html = invoiceTemplate(data, logoUrl);
 
     browser = await launchBrowser();
