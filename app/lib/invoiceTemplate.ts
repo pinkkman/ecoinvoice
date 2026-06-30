@@ -45,13 +45,11 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
   const totalAmount = data.products.reduce((sum, p) => sum + p.amount, 0);
   const amountInWords = `INR ${numberToWords(totalAmount)} ONLY`;
 
-  // Estimate vertical space used by product rows (rough px per row based on description lines)
   const estimatedContentHeight = data.products.reduce((sum, p) => {
     const lineCount = 1 + (p.details ? p.details.split("\n").length : 0);
-    return sum + 36 + lineCount * 18; // base row padding + per line height
+    return sum + 36 + lineCount * 18;
   }, 0);
 
-  // Total usable height inside the box for the table body (tuned for A4 at this padding/header size)
   const AVAILABLE_HEIGHT = 480;
   const fillerHeight = Math.max(0, AVAILABLE_HEIGHT - estimatedContentHeight);
 
@@ -130,6 +128,7 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
           page-break-inside: avoid;
         }
 
+        /* HEADER — logo + brand left-aligned together, phones pinned right */
         .header {
           display: flex;
           align-items: center;
@@ -138,7 +137,11 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
           border-bottom: 2px solid #000;
         }
 
-        .logo-block { display: flex; align-items: center; gap: 14px; }
+        .logo-block {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
         .logo-block img { height: 64px; width: 64px; object-fit: contain; }
         .brand-name { font-family: 'Times New Roman', serif; font-size: 34px; font-weight: 700; letter-spacing: 1px; }
 
@@ -210,17 +213,29 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
         .filler-row .desc-cell,
         .filler-row .un-cell { border-right: 2px solid #000; }
 
+        /* TOTAL ROW — 4 real cells so amount lines up exactly under Amount column */
         .total-row td { border-top: 2px solid #000; padding: 10px; font-family: Arial, sans-serif; }
         .total-label-cell {
+          width: 56px;
           font-family: 'Times New Roman', serif;
           font-weight: 700;
           font-size: 16px;
           text-align: center;
           border-right: 2px solid #000;
-          width: 56px;
         }
-        .total-words-cell { font-family: 'Times New Roman', serif; font-weight: 700; font-size: 13px; border-right: 2px solid #000; }
-        .total-amount-cell { font-weight: 700; font-size: 14px; text-align: left; padding-left: 10px; }
+        .total-words-cell {
+          font-family: 'Times New Roman', serif;
+          font-weight: 700;
+          font-size: 13px;
+          border-right: 2px solid #000;
+        }
+        .total-amount-cell {
+          width: 130px;
+          font-weight: 700;
+          font-size: 14px;
+          text-align: left;
+          padding-left: 10px;
+        }
 
         .empty-row td { border-top: 2px solid #000; height: 30px; }
 
@@ -244,7 +259,7 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
 
         <div class="header">
           <div class="logo-block">
-            <img src="/logo.png" alt="HR SALES Logo" />
+            <img src="${logoUrl}" alt="HR SALES Logo" />
             <div class="brand-name">HR SALES</div>
           </div>
           <div class="phones">
@@ -292,8 +307,8 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
           <tfoot>
             <tr class="total-row">
               <td class="total-label-cell">Total</td>
-              <td class="total-words-cell">${amountInWords}</td>
-              <td colspan="2" class="total-amount-cell">${totalAmount.toLocaleString("en-IN")}</td>
+              <td class="total-words-cell" colspan="2">${amountInWords}</td>
+              <td class="total-amount-cell">${totalAmount.toLocaleString("en-IN")}</td>
             </tr>
             <tr class="empty-row"><td colspan="4"></td></tr>
             <tr class="empty-row"><td colspan="4"></td></tr>
