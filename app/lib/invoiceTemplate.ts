@@ -244,7 +244,7 @@ export default function invoiceTemplate(data: InvoiceData, logoUrl: string): str
 
         <div class="header">
           <div class="logo-block">
-            <img src="${logoUrl}" alt="HR SALES Logo" />
+            <img src="/logo.png" alt="HR SALES Logo" />
             <div class="brand-name">HR SALES</div>
           </div>
           <div class="phones">
